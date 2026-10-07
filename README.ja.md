@@ -65,7 +65,7 @@ Claude Profilesは[Sparkle](https://sparkle-project.org/)で自動更新しま�
 
 ### 起動中のセッションを別のプロフィールへ移す
 
-`extras/claude-commands/switch.md`は、今のセッションを別のプロフィールへ移すためのClaude Codeのコマンドです。`~/.claude/commands/`にコピーして使います。アプリは自動では配置しません。セッションの中で`/switch review`と入力すると、`claude-review`が`PATH`にあることを確かめてから`claude-review --resume <セッションID>`を表示し、クリップボードにコピーします。セッションを終了してから貼り付けて実行すると、同じ会話をそのプロフィールで続けられます。`/switch`だけを入力すると、使える`claude-*`コマンドの一覧を表示します。
+`extras/claude-commands/switch.md`は、今のセッションを別のプロフィールへ移すためのClaude Codeのコマンドです。`~/.claude/commands/`にコピーして使います。アプリは自動では配置しません。セッションの中で`/switch review`と入力すると、`claude-review`が`PATH`にあることを確かめてから`claude-review --resume <セッションID>`を表示し、クリップボードにコピーします。セッションを終了してから貼り付けて実行すると、同じ会話をそのプロフィールで続けられます。`/switch main`（または`/switch claude`）は標準プロフィールへ戻る用で、`claude --resume <セッションID>`を表示します。`/switch`だけを入力すると、使える`claude-*`コマンドの一覧を表示します。
 
 ## 仕組み
 

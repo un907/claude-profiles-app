@@ -65,7 +65,7 @@ Each additional profile can have a terminal command. In **Edit name, purpose and
 
 ### Switching a running session to another profile
 
-`extras/claude-commands/switch.md` is a Claude Code command for moving the current session to another profile. Copy it to `~/.claude/commands/` (the app does not install it). In a session, `/switch review` checks that `claude-review` is on `PATH`, prints `claude-review --resume <session ID>`, and copies it to the clipboard. Exit the session and paste the command to continue the same conversation under that profile. `/switch` without a name lists the available `claude-*` commands.
+`extras/claude-commands/switch.md` is a Claude Code command for moving the current session to another profile. Copy it to `~/.claude/commands/` (the app does not install it). In a session, `/switch review` checks that `claude-review` is on `PATH`, prints `claude-review --resume <session ID>`, and copies it to the clipboard. Exit the session and paste the command to continue the same conversation under that profile. `/switch main` (or `/switch claude`) does the same for the default profile, printing `claude --resume <session ID>`. `/switch` without a name lists the available `claude-*` commands.
 
 ## How it works
 
