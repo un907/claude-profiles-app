@@ -36,7 +36,7 @@ History: the first baseline on 2026-10-06 (before the CLI command feature and be
 - **Leaks.** `leaks` cannot be measured on ad-hoc signed builds: without the `get-task-allow` entitlement the process is "not debuggable", `leaks` only sees read-only memory, and its count is meaningless. `leaks` is recorded as null and idle RSS growth is used as the substitute signal.
 - **Runtime numbers can be disturbed by use.** The perf section runs the app for about two minutes. During the 2026-10-07 run a profile was opened from the menu bar while the app was idling, so the RSS and CPU values include that activity.
 - **The perf section terminates every running `ClaudeProfilesApp`**, including an installed copy, because the launcher holds a single-instance lock. Restart the installed app afterwards.
-- **Tool versions.** The script pins jscpd (`npx --yes jscpd@5.4.0`), honours `$SWIFTLINT` for a specific SwiftLint binary, and falls back to `python3 -m lizard` when no `lizard` is on PATH. The CI workflow still installs SwiftLint with Homebrew and lizard with pipx, so their versions can drift until the workflow is switched to the portable SwiftLint 0.65.1 release and `pip3 install lizard==1.24.1`. Locally, check `swiftlint version` and `lizard --version` before comparing numbers.
+- **Tool versions.** The script pins jscpd (`npx --yes jscpd@5.4.0`), honours `$SWIFTLINT` for a specific SwiftLint binary, and falls back to `python3 -m lizard` when no `lizard` is on PATH. The CI workflow installs the portable SwiftLint 0.65.1 release and `lizard==1.24.1` via pip, so CI numbers are comparable with the ones recorded here. Locally, check `swiftlint version` and `lizard --version` before comparing numbers.
 
 ## Visual regression baseline
 

@@ -25,12 +25,18 @@ jobs:
       - name: Test
         run: swift test
 
-      # Tools for the quality ratchet. Versions float with Homebrew / PyPI / npm, so a new
-      # SwiftLint release can change the warning count; see docs/QUALITY.md.
+      # Tools for the quality ratchet, pinned to the versions the thresholds were measured
+      # with (docs/QUALITY.md). A newer SwiftLint can change the warning count on its own,
+      # which would trip the ratchet for reasons unrelated to the code.
       - name: Install quality tools
         run: |
-          brew install swiftlint
-          pipx install lizard || pip3 install --user lizard
+          curl -fsSL -o "$RUNNER_TEMP/swiftlint.zip" \
+            https://github.com/realm/SwiftLint/releases/download/0.65.1/portable_swiftlint.zip
+          unzip -q -o "$RUNNER_TEMP/swiftlint.zip" -d "$RUNNER_TEMP/swiftlint"
+          echo "SWIFTLINT=$RUNNER_TEMP/swiftlint/swiftlint" >> "$GITHUB_ENV"
+          "$RUNNER_TEMP/swiftlint/swiftlint" version
+          pip3 install lizard==1.24.1 || pip3 install --break-system-packages lizard==1.24.1
+          python3 -m lizard --version
 
       # lint / ccn / dup only: mutation testing and runtime perf are too slow or need a
       # desktop session, and the clean compiler build is already covered above.
