@@ -87,12 +87,21 @@ while IFS= read -r rpath; do
     install_name_tool -delete_rpath "$rpath" "$EXECUTABLE"
 done < <(list_rpaths "$EXECUTABLE" | grep 'xctoolchain' || true)
 
-EXPECTED_RPATHS="$(printf '%s\n' "/usr/lib/swift" "@executable_path/../Frameworks" "@loader_path" | sort -u)"
-if [[ "$(list_rpaths "$EXECUTABLE")" != "$EXPECTED_RPATHS" ]]; then
-    echo "error: unexpected LC_RPATH set:" >&2
-    list_rpaths "$EXECUTABLE" >&2
-    exit 1
-fi
+# The exact rpath set differs between toolchains (Xcode 27 emits "@loader_path", the
+# GitHub runner's Xcode emits "@executable_path/../lib"), so do not pin the full set.
+# What matters for a distributable binary: no absolute path other than the OS Swift
+# runtime may remain, because anything else points into the build machine's filesystem.
+while IFS= read -r rpath; do
+    [[ -n "$rpath" ]] || continue
+    case "$rpath" in
+        /usr/lib/swift|@*) ;;
+        *)
+            echo "error: build-machine specific LC_RPATH left in binary: $rpath" >&2
+            list_rpaths "$EXECUTABLE" >&2
+            exit 1
+            ;;
+    esac
+done < <(list_rpaths "$EXECUTABLE")
 
 # --- 3. Fill in the version ------------------------------------------------
 plutil -replace CFBundleShortVersionString -string "$VERSION" "$CONTENTS/Info.plist"
