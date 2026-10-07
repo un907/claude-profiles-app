@@ -1,0 +1,18 @@
+# Muter (mutation testing) configuration, used by Scripts/quality-metrics.sh.
+# Generated from `muter init` and adapted for SwiftPM: each mutant is checked by
+# running `swift test`.
+#
+# Only Sources/ClaudeProfilesCore is mutated. Sources/ClaudeProfilesApp (SwiftUI views,
+# AppKit glue, Sparkle wiring) has no unit tests, so every mutant there would survive and
+# the score would measure missing tests rather than test strength. Build output and
+# release artifacts are excluded so they are never scanned or copied as sources.
+arguments:
+- test
+executable: /usr/bin/swift
+exclude:
+- Package.swift
+- Sources/ClaudeProfilesApp
+- Tests
+- .build
+- dist
+excludeCalls: []

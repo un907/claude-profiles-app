@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!--
+  Info.plist template for "Claude Profiles.app".
+  __VERSION__ is replaced by Scripts/build-app.sh with the release version (x.y.z).
+  CFBundleVersion uses the same dotted string so Sparkle's standard version
+  comparator can order releases. The SU* keys configure Sparkle 2 updates from
+  the GitHub Releases appcast; the public key verifies EdDSA-signed archives.
+-->
+<plist version="1.0">
+<dict>
+    <key>CFBundleDevelopmentRegion</key>
+    <string>ja</string>
+    <key>CFBundleDisplayName</key>
+    <string>Claude Profiles</string>
+    <key>CFBundleExecutable</key>
+    <string>ClaudeProfilesApp</string>
+    <key>CFBundleIdentifier</key>
+    <string>io.github.un907.claudeprofiles</string>
+    <key>CFBundleInfoDictionaryVersion</key>
+    <string>6.0</string>
+    <key>CFBundleName</key>
+    <string>Claude Profiles</string>
+    <key>CFBundlePackageType</key>
+    <string>APPL</string>
+    <key>CFBundleShortVersionString</key>
+    <string>__VERSION__</string>
+    <key>CFBundleVersion</key>
+    <string>__VERSION__</string>
+    <key>LSMinimumSystemVersion</key>
+    <string>13.0</string>
+    <key>LSUIElement</key>
+    <true/>
+    <key>NSHighResolutionCapable</key>
+    <true/>
+    <key>NSPrincipalClass</key>
+    <string>NSApplication</string>
+    <key>SUFeedURL</key>
+    <string>https://github.com/un907/claude-profiles-app/releases/latest/download/appcast.xml</string>
+    <key>SUPublicEDKey</key>
+    <string>u+gfVw1PsL2/Zud5vUPUeJjVVbft6OjCR4Vk8X+KSy4=</string>
+    <key>SUEnableAutomaticChecks</key>
+    <true/>
+    <key>SUScheduledCheckInterval</key>
+    <integer>86400</integer>
+    <key>SUAutomaticallyUpdate</key>
+    <false/>
+    <key>SUAllowsAutomaticUpdates</key>
+    <true/>
+</dict>
+</plist>

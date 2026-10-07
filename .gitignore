@@ -1,0 +1,12 @@
+# SwiftPM build products and local package state
+.build/
+.swiftpm/
+# Release artifacts produced by Scripts/*.sh
+dist/
+# macOS / Xcode noise
+.DS_Store
+*.xcodeproj
+*.xcworkspace
+# Note: Package.resolved is intentionally tracked so CI resolves the same Sparkle binary.
+# Per-run logs written by muter (Scripts/quality-metrics.sh mutation section)
+muter_logs/

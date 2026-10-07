@@ -1,0 +1,50 @@
+# Release: triggered by pushing a tag like v1.2.3.
+# Builds the app (universal arm64 + x86_64), packages the DMG (first install) and ZIP (Sparkle update archive),
+# generates a single-item appcast.xml signed with the EdDSA key from the
+# SPARKLE_PRIVATE_KEY secret, and publishes all three as GitHub Release assets.
+# Clients read releases/latest/download/appcast.xml, so the newest release's appcast
+# is always the live feed (see docs/RELEASING.md).
+name: Release
+
+on:
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: write   # needed by `gh release create`
+
+jobs:
+  release:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      # Tag "v1.2.3" -> version "1.2.3"; build-app.sh rejects anything not x.y.z.
+      - name: Derive version from tag
+        run: echo "VERSION=${GITHUB_REF_NAME#v}" >> "$GITHUB_ENV"
+
+      - name: Test
+        run: swift test
+
+      - name: Build app bundle and update ZIP
+        run: Scripts/build-app.sh "$VERSION"
+
+      - name: Build DMG
+        run: Scripts/make-dmg.sh "$VERSION"
+
+      # The key is only exposed to this step and is passed to generate_appcast via stdin.
+      - name: Generate signed appcast
+        env:
+          SPARKLE_PRIVATE_KEY: ${{ secrets.SPARKLE_PRIVATE_KEY }}
+        run: Scripts/make-appcast.sh "$VERSION"
+
+      - name: Publish GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "v$VERSION" \
+            "dist/Claude.Profiles-$VERSION.dmg" \
+            "dist/Claude.Profiles-$VERSION.zip" \
+            dist/appcast.xml \
+            --title "v$VERSION" \
+            --generate-notes
