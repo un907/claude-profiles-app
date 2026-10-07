@@ -110,7 +110,7 @@ public struct SharedMCPConfigurationStore {
     }
 }
 
-public enum SharedMCPConfigurationError: LocalizedError {
+public enum SharedMCPConfigurationError: SharedPreparationError {
     case unsafeDestination, invalidJSON, backupFailed, writeFailed, changedDuringPreparation
 
     public var errorDescription: String? {

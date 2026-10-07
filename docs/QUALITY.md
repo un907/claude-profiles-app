@@ -27,6 +27,20 @@ Mutation score per file: ProcessSnapshot.swift 100 %, CLIShimStore.swift 70 %, S
 
 History: the first baseline on 2026-10-06 (before the CLI command feature and before `no_extension_access_modifier` was disabled) was 1169 warnings and 3 errors, 80 functions, 1 function over CCN 10, 1.5 % duplication and a 53 % mutation score (32 of 60). The CLI command feature added 245 SwiftLint warnings, mostly `explicit_type_interface`, `contrasted_opening_brace` and `prefer_nimble`, which the existing code does not follow either.
 
+## 1.1.0 static metrics (2026-10-07)
+
+Measured at 2026-10-07T16:32:12+09:00 with `Scripts/quality-metrics.sh --skip-mutation --skip-perf --check-thresholds` after adding SharedHistoryStore and moving `contrasted_opening_brace`, `prefer_nimble` and `required_deinit` to `disabled_rules` in `.swiftlint.yml` (each contradicts the codebase's style or tooling; see the comments there).
+
+| Metric | Value |
+|---|---|
+| SwiftLint warnings | 701 |
+| SwiftLint errors | 0 |
+| Compiler warnings | 0 |
+| Functions with CCN > 10 | 1 |
+| Duplicated lines | 1.09 % |
+
+The ratchet ceilings in `Scripts/quality-thresholds.env` were lowered to these values (701 warnings, 1 function over CCN 10, 1.09 % duplication). Most of the drop from 1409 comes from the three rules that are now disabled, not from code changes.
+
 ## Notes on the measurements
 
 - **SwiftLint configuration.** Every non-analyzer opt-in rule is enabled except `no_extension_access_modifier`, which is the exact opposite of the enabled `extension_access_modifier`; keeping both would flag every extension.

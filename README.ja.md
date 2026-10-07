@@ -59,9 +59,17 @@ Claude Profilesは[Sparkle](https://sparkle-project.org/)で自動更新しま�
 - `~/.local/bin`がシェルの`PATH`に含まれている必要があります。含まれていない場合は編集画面に注意書きが出ます。たとえば`~/.zshrc`に`export PATH="$HOME/.local/bin:$PATH"`を追加してください。
 - スクリプトは標準では`PATH`上の`claude`を実行します。特定の実行ファイルやラッパーを使う場合は、設定のターミナル欄にある**CLIが呼び出すclaude**に指定します。値を変えると全スクリプトを書き直します。
 
+### 巻き戻し用スナップショットと入力履歴の統合
+
+`file-history`と`history.jsonl`は、置き換えるのではなく標準プロフィールへ統合してから接続します。追加プロフィールの`file-history`にあるセッションごとのフォルダは、標準プロフィールの`file-history`へ移します。同じセッションIDのフォルダが既にある場合は標準プロフィール側を残し、追加プロフィール側は`Migration Backups/<プロフィールID>/Shared History/`へ退避します。`history.jsonl`は両方の行を合わせ、完全に同じ行を取り除いてから`timestamp`の順に並べます。`timestamp`のない行やJSONとして読めない行は捨てずに、元の順序のまま末尾に残します。標準プロフィール側のファイルは1回の操作でまとめて置き換え、元の2つのファイルは同じ退避フォルダに残します。統合に失敗した場合は、そのプロフィールを起動せずにエラーを表示します。
+
+### 起動中のセッションを別のプロフィールへ移す
+
+`extras/claude-commands/switch.md`は、今のセッションを別のプロフィールへ移すためのClaude Codeのコマンドです。`~/.claude/commands/`にコピーして使います。アプリは自動では配置しません。セッションの中で`/switch review`と入力すると、`claude-review`が`PATH`にあることを確かめてから`claude-review --resume <セッションID>`を表示し、クリップボードにコピーします。セッションを終了してから貼り付けて実行すると、同じ会話をそのプロフィールで続けられます。`/switch`だけを入力すると、使える`claude-*`コマンドの一覧を表示します。
+
 ## 仕組み
 
-追加プロフィールごとに専用のElectron `user-data-dir`と`CLAUDE_CONFIG_DIR`を割り当て、Claude Desktopを別プロセスとして起動します。ログイン、Cookie、Claude Desktopの会話一覧、アカウントの状態はプロフィールごとに分離したままです。各プロフィールのClaude Codeの設定のうち、ユーザー指示（`CLAUDE.md`）、Agents、Rules、Hooks、Commands、Skills、Output Styles、Settings、Pluginsは標準プロフィールへ接続します。`projects`も標準プロフィールへ接続するため、Auto MemoryとClaude Codeのプロジェクト保存データは共通になります。`CLAUDE_CONFIG_DIR`の外、ホームフォルダ以下にデータを置くツールは、同じデータをそのまま使います。標準プロフィールは、これらの起動引数を持たないClaudeプロセスとして区別します。Claude Desktop本体と`app.asar`は変更しません。
+追加プロフィールごとに専用のElectron `user-data-dir`と`CLAUDE_CONFIG_DIR`を割り当て、Claude Desktopを別プロセスとして起動します。ログイン、Cookie、Claude Desktopの会話一覧、アカウントの状態はプロフィールごとに分離したままです。各プロフィールのClaude Codeの設定のうち、ユーザー指示（`CLAUDE.md`）、Agents、Rules、Hooks、Commands、Skills、Output Styles、Settings、Pluginsは標準プロフィールへ接続します。`projects`も標準プロフィールへ接続するため、Auto MemoryとClaude Codeのプロジェクト保存データは共通になります。Claude Codeの巻き戻し用スナップショット（`file-history`）と入力履歴（`history.jsonl`）も共有するため、別のプロフィールで再開したセッションでも巻き戻しと入力履歴を使えます。`CLAUDE_CONFIG_DIR`の外、ホームフォルダ以下にデータを置くツールは、同じデータをそのまま使います。標準プロフィールは、これらの起動引数を持たないClaudeプロセスとして区別します。Claude Desktop本体と`app.asar`は変更しません。
 
 ## データと安全性
 
@@ -75,7 +83,7 @@ Claude Profilesは[Sparkle](https://sparkle-project.org/)で自動更新しま�
 - 設定を共有する前に追加プロフィール側の既存の設定を`Migration Backups`に残し、途中で失敗した場合は元の状態に戻します。
 - `.claude.json`の全体は共有しません。起動の準備で、MCPの接続定義と有効化の設定だけを標準プロフィールから同期します。プロジェクトごとの接続定義も対象です。ログイン、信頼の確認、使用履歴はプロフィールごとに保持します。
 - 指示から参照されることの多い補助ファイルとフォルダの決まった一覧も共有します。`scripts`、`docs`、`templates`、`AGENTS.md`、`launch.json`などが含まれ、全体は`Sources/ClaudeProfilesCore/SharedConfigurationParityStore.swift`に記載しています。
-- 独自のファイルやフォルダも共有したい場合は、`~/Library/Application Support/Claude Profiles Launcher/extra-shared-items.txt`に1行1項目で名前を書きます。`#`で始まる行と空行は無視します。`/`や`..`を含む名前と`.`は設定フォルダの外を指すため無視し、システムログに警告を残します。ファイルはプロフィールの起動準備のたびに読み直すため、再起動は不要です。一覧から名前を消しても、作成済みのリンクは削除しません。
+- 独自のファイルやフォルダも共有したい場合は、`~/Library/Application Support/Claude Profiles Launcher/extra-shared-items.txt`に1行1項目で名前を書きます。`#`で始まる行と空行は無視します。`/`や`..`を含む名前と`.`は設定フォルダの外を指すため無視し、システムログに警告を残します。ファイルはプロフィールの起動準備のたびに読み直すため、再起動は不要です。一覧から名前を消しても、作成済みのリンクは削除しません。`projects`、`file-history`、`history.jsonl`は統合付きで共有する組み込みの項目のため、指定しても無視します。
 - `remote-settings.json`、セッション、テレメトリ、組織のキャッシュは共有しません。起動済みのセッションは古い設定を保持している場合があるため、MCPの設定を変えた後は新しいセッションで接続を確認してください。
 - Claude Desktopの会話一覧はプロフィールごとに独立したままです。共有されるのは、会話から抽出されたメモリとClaude Codeの保存データです。
 - 同じClaude Codeのセッションを複数のプロフィールで同時に再開すると、履歴が混ざる可能性があります。1つのセッションは一度に1つのプロフィールで利用してください。

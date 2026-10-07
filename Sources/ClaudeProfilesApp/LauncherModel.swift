@@ -376,6 +376,12 @@ final class LauncherModel: ObservableObject {
                 .appendingPathComponent(profile.id.uuidString, isDirectory: true)
                 .path
         )
+        // Rewind snapshots and prompt history: merged into the default profile, then linked.
+        _ = try SharedHistoryStore().prepare(
+            profileConfigPath: profile.claudeConfigPath,
+            sharedConfigPath: defaultProfile.claudeConfigPath,
+            backupRootPath: repository.migrationBackupsRoot.path + "/\(profile.id.uuidString)/Shared History"
+        )
     }
 
     private func prepareStoppedProfilesForSharedConfiguration() {
@@ -393,20 +399,15 @@ final class LauncherModel: ObservableObject {
     }
 
     private func configurationPreparationErrorMessage(for error: Error) -> String {
-        if let error = error as? SharedProjectsStoreError {
-            return error.localizedDescription
-        }
-        if let error = error as? SharedConfigurationParityError {
-            return error.localizedDescription
-        }
-        if let error = error as? SharedMCPConfigurationError {
+        // Every store's error conforms to SharedPreparationError and carries a user-facing text.
+        if let error = error as? SharedPreparationError {
             return error.localizedDescription
         }
         return "共有設定の準備に失敗しました。元の設定は保持しています。"
     }
 
     private func sharedConfigurationErrorMessage(for error: Error, fallback: String) -> String {
-        if error is SharedProjectsStoreError || error is SharedConfigurationParityError || error is SharedMCPConfigurationError {
+        if error is SharedPreparationError {
             return configurationPreparationErrorMessage(for: error)
         }
         return fallback

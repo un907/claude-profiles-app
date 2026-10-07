@@ -164,3 +164,10 @@ analyzer_rules: []
 # extension_access_modifier is kept; its opposite is disabled.
 disabled_rules:
   - no_extension_access_modifier
+  # Demands opening braces on their own line, the opposite of the default opening_brace rule
+  # and of the style used throughout the codebase.
+  - contrasted_opening_brace
+  # The tests use plain XCTest; the project has no Nimble dependency.
+  - prefer_nimble
+  # Requires an explicit deinit in every class, which is empty noise for XCTestCase subclasses.
+  - required_deinit

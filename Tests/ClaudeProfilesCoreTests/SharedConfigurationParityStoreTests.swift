@@ -274,6 +274,16 @@ final class SharedConfigurationParityStoreTests: XCTestCase {
         XCTAssertEqual(try String(contentsOf: root.appendingPathComponent("escape")), "outside")
     }
 
+    /// Items shared by merging (projects, file-history, history.jsonl) are never accepted
+    /// as extras, so they cannot bypass the merge step.
+    func testIgnoresReservedExtraSharedItemNames() {
+        let parsed = SharedConfigurationParityStore.parseExtraItemNames(
+            "projects\nfile-history\nhistory.jsonl\nmy-notes\n"
+        )
+        XCTAssertEqual(parsed.accepted, ["my-notes"])
+        XCTAssertEqual(parsed.rejected, ["projects", "file-history", "history.jsonl"])
+    }
+
     private func makeTemporaryDirectory() throws -> URL {
         let url = fileManager.temporaryDirectory
             .appendingPathComponent("SharedConfigurationParityStoreTests-\(UUID().uuidString)")

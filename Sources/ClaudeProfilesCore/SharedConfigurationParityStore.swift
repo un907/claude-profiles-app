@@ -25,7 +25,7 @@ public struct SharedConfigurationParityPreparation: Equatable, Sendable {
     }
 }
 
-public enum SharedConfigurationParityError: LocalizedError, Equatable, Sendable {
+public enum SharedConfigurationParityError: SharedPreparationError, Equatable, Sendable {
     case sameConfigurationDirectory
     case danglingSharedItem(String)
     case unsupportedSharedItem(String)
@@ -121,6 +121,10 @@ public struct SharedConfigurationParityStore {
     /// (it could escape the configuration directory) or is exactly `.` (it would resolve to
     /// the profile configuration directory itself, which `prepare` would then move into the
     /// backup folder wholesale).
+    ///
+    /// Names in `reservedExtraItemNames` are rejected too: these are built-in items that are
+    /// shared with a merge step (SharedProjectsStore / SharedHistoryStore), and sending them
+    /// through this store's back-up-then-link path would link them before the merge runs.
     public static func parseExtraItemNames(_ text: String) -> ExtraItemNames {
         var accepted: [String] = []
         var rejected: [String] = []
@@ -129,7 +133,8 @@ public struct SharedConfigurationParityStore {
             if line.isEmpty || line.hasPrefix("#") {
                 continue
             }
-            if line.contains("/") || line.contains("..") || line == "." {
+            if line.contains("/") || line.contains("..") || line == "."
+                || reservedExtraItemNames.contains(line) {
                 rejected.append(line)
                 continue
             }
@@ -139,6 +144,13 @@ public struct SharedConfigurationParityStore {
         }
         return ExtraItemNames(accepted: accepted, rejected: rejected)
     }
+
+    /// Items shared by merging rather than by this store; never accepted as extras.
+    public static let reservedExtraItemNames: Set<String> = [
+        "projects",
+        SharedHistoryStore.fileHistoryName,
+        SharedHistoryStore.historyFileName
+    ]
 
     /// Built-in allowlist followed by any valid names from the extra items file.
     ///
@@ -153,7 +165,7 @@ public struct SharedConfigurationParityStore {
         let parsed = Self.parseExtraItemNames(text)
         for name in parsed.rejected {
             Self.logger.warning(
-                "Ignoring extra shared item \(name, privacy: .public): names must not contain '/' or '..'"
+                "Ignoring extra shared item \(name, privacy: .public): unsafe or reserved name"
             )
         }
         return Self.sharedItemNames + parsed.accepted.filter { !Self.sharedItemNames.contains($0) }

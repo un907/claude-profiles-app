@@ -16,7 +16,7 @@ public struct SharedProjectsPreparation: Equatable, Sendable {
     }
 }
 
-public enum SharedProjectsStoreError: LocalizedError, Equatable, Sendable {
+public enum SharedProjectsStoreError: SharedPreparationError, Equatable, Sendable {
     case conflictingItem(String)
     case projectsLinkPointsElsewhere(String)
     case unsupportedProjectsItem(String)
