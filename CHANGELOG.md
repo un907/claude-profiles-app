@@ -1,5 +1,9 @@
 # Changelog
 
+## 未リリース
+
+- `/switch main`（または`/switch claude`）で標準プロフィールへ戻れるようにしました
+
 ## 1.1.0
 
 - Claude Codeの巻き戻し用スナップショット（`file-history`）と入力履歴（`history.jsonl`）を、標準プロフィールへ統合してから全プロフィールで共有するようにしました
